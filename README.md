@@ -1,16 +1,16 @@
-# Astra License Manager
+# Astra License Manager 
 
-Este proyecto permite centralizar, proteger y administrar licencias de **Astra Pro** para sitios WordPress que entregas a tus clientes, sin revelar la clave original.
+Este proyecto permite centralizar y proteger la activación de **Astra Pro** en múltiples sitios WordPress, usando una sola clave **lifetime** o cualquier otra **licencia valida** y un sistema de control automatizado y remoto.
 
 ---
 
 ## 🔐 Características
 
-- **Carga remota de licencia**: los sitios consultan tu servidor para obtener la licencia en tiempo real.
-- **MU Plugin**: oculta la clave, evita que el cliente la vea o copie.
-- **Panel web seguro**: gestiona dominios, licencias y bloqueos.
-- **Registro de accesos**: guarda historial de consultas con IP y dominio.
-- **Sistema de bloqueo**: revoca licencias por dominio fácilmente.
+- ✅ Activación automática de sitios nuevos
+- ✅ Panel de gestión web (con login, bloqueo y edición)
+- ✅ Protección contra abuso (bloqueo por dominio)
+- ✅ Registro de accesos (IP, dominio, fecha)
+- ✅ Totalmente oculto al cliente (MU Plugin)
 
 ---
 
@@ -19,93 +19,97 @@ Este proyecto permite centralizar, proteger y administrar licencias de **Astra P
 ```
 astra_license_manager/
 ├── api/
-│   └── consulta.php         ← API que devuelve licencia si el dominio/token coinciden
+│   └── consulta.php         ← API que entrega la licencia automáticamente y registra nuevos dominios
 ├── admin/
-│   └── index.php            ← Interfaz web con login para administrar licencias
+│   └── index.php            ← Panel de administración con login y controles
 ├── data/
-│   ├── licencias.json       ← Lista de dominios y sus claves de licencia
-│   ├── bloqueados.json      ← Lista de dominios bloqueados
-│   └── accesos.log          ← Registro de llamadas a la API
+│   ├── licencias.json       ← Base de datos de dominios autorizados
+│   ├── bloqueados.json      ← Dominios bloqueados manualmente
+│   └── accesos.log          ← Registro de solicitudes a la API
 └── mu-plugins/
-    └── astra-key-loader.php ← Plugin WordPress que carga la licencia desde la API
+    └── astra-key-loader.php ← Plugin oculto que consulta tu servidor para activar Astra Pro
 ```
 
 ---
 
-## 🚀 Instalación
+## 🚀 Cómo funciona
 
-### 1. Subir al servidor
+1. El sitio WordPress carga el MU-plugin.
+2. Este plugin consulta tu servidor con el dominio del sitio.
+3. Si el dominio no existe, el servidor lo **registra automáticamente** y le devuelve la licencia.
+4. Si está bloqueado, se rechaza.
+5. Si está autorizado, Astra Pro se activa automáticamente.
 
-Coloca el contenido del proyecto en tu dominio, por ejemplo:
+---
+
+## ⚙️ Instalación
+
+### 1. Subir el sistema a tu servidor
+
+Sube todos los archivos a tu dominio, por ejemplo:
 
 ```
-https://as.mosley.mx/
+https://mosley.mx/
 ```
 
-### 2. Configurar token
+### 2. Editar tu licencia y token
 
-Edita `consulta.php` y cambia esta línea:
-
-```php
-define('TOKEN_SECRETO', 'TU_TOKEN_SECRETO');
-```
-
-Reemplaza `'TU_TOKEN_SECRETO'` por tu clave real, como:
+Abre `/api/consulta.php` y cambia:
 
 ```php
 define('TOKEN_SECRETO', '4d1f8b3e6c9a2f1e9083eeabc7412f1d23');
+define('LICENCIA_UNICA', 'ASTRA-PRO-UNICA-1234');
 ```
 
-### 3. Agregar MU Plugin a WordPress
+Reemplaza la licencia por tu clave real de Astra Pro (solo si tienes una licencia valida).
 
-Coloca `astra-key-loader.php` dentro de:
+### 3. Instalar el MU-plugin en cada WordPress
+
+Sube `astra-key-loader.php` a esta carpeta del sitio:
 
 ```
 /wp-content/mu-plugins/
 ```
 
-El plugin se ejecutará automáticamente y definirá la constante que Astra Pro necesita.
+No aparecerá como plugin en el panel, y el cliente no podrá desactivarlo.
 
 ---
 
-## ✏️ Uso del panel de gestión
+## 🧩 Panel de administración
 
-1. Visita `/admin/index.php`
-2. Inicia sesión con:
-   - Usuario: `admin`
-   - Contraseña: `12345` (modificable en `index.php`)
-3. Puedes:
-   - Agregar dominios con sus licencias
-   - Eliminar dominios
-   - Bloquear y desbloquear el uso por dominio
-
----
-
-## ✅ Requisitos
-
-- PHP 7.2+
-- Servidor con HTTPS
-- WordPress con Astra Pro instalado
+1. Abre `https://mosley.mx/admin/index.php`
+2. Login:  
+   - Usuario: `admin`  
+   - Contraseña: `12345` (cámbiala en el archivo)
+3. Podrás:
+   - Ver dominios registrados
+   - Editar claves si alguna cambia
+   - Bloquear o desbloquear dominios
+   - Eliminar entradas
+   - Ver historial de accesos
 
 ---
 
-## 🛡️ Seguridad recomendada
+## 📌 Notas importantes
 
-- Cambia el token frecuentemente si sospechas abuso.
-- Protege el directorio `/admin/` con .htaccess o un firewall.
-- No compartas `astra-key-loader.php` públicamente.
+- Este sistema funciona solo si tienes una **licencia valida** de Astra.
+- Cada sitio recibe **la misma clave**, pero tú controlas quién la puede usar.
+- Puedes revocar acceso en cualquier momento sin tocar el sitio cliente.
 
 ---
 
-## 📄 Licencia
+## 🛡️ Consejos de seguridad
 
-Este sistema es una implementación personalizada para gestionar tus propias licencias de Astra Pro. No está afiliado con Brainstorm Force.
+- Cambia el token secreto regularmente si sospechas filtración.
+- Protege la carpeta `/admin/` con .htaccess o firewall.
+- Haz copias de seguridad de `licencias.json` si manejas muchos clientes.
 
 ---
 
 ## ✉️ Soporte
 
-Desarrollado por Enmanoell Mosley.  
+Desarrollado por Enmanoell Mosley.
 Para mejoras o soporte, abre un issue o contáctanos.
 
-Gracias openAI por este hermoso readme. 
+Gracias openAI por este hermoso readme.
+
