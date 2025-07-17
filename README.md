@@ -105,5 +105,7 @@ Este sistema es una implementación personalizada para gestionar tus propias lic
 
 ## ✉️ Soporte
 
-Desarrollado por [tu nombre o empresa].  
+Desarrollado por Enmanoell Mosley.  
 Para mejoras o soporte, abre un issue o contáctanos.
+
+Gracias openAI por este hermoso readme. 
