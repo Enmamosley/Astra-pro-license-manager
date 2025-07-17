@@ -2,33 +2,41 @@
 $dominio = $_GET['dominio'] ?? '';
 $token = $_GET['token'] ?? '';
 
-// Seguridad: token simple
-define('TOKEN_SECRETO', 'TU_TOKEN_SECRETO');
+// Configuración
+define('TOKEN_SECRETO', '4d1f8b3e6c9a2f1e9083eeabc7412f1d23');
+define('LICENCIA_UNICA', 'ASTRA-PRO-UNICA-1234'); // Tu clave real aquí
 
-// Rutas a los archivos
+// Rutas de archivos
 $licencias_file = __DIR__ . '/../data/licencias.json';
 $bloqueados_file = __DIR__ . '/../data/bloqueados.json';
 $log_file = __DIR__ . '/../data/accesos.log';
 
-// Cargar datos
+// Leer datos
 $licencias = file_exists($licencias_file) ? json_decode(file_get_contents($licencias_file), true) : [];
 $bloqueados = file_exists($bloqueados_file) ? json_decode(file_get_contents($bloqueados_file), true) : [];
 
 // Registrar acceso
-$log = date('Y-m-d H:i:s') . " - Dominio: $dominio - IP: {$_SERVER['REMOTE_ADDR']}\n";
+$log = date('c') . " - $dominio - IP: {$_SERVER['REMOTE_ADDR']}\n";
 file_put_contents($log_file, $log, FILE_APPEND);
 
-// Verificación
+// Rechazar si está bloqueado
 if (isset($bloqueados[$dominio])) {
     http_response_code(403);
     echo 'Dominio bloqueado';
     exit;
 }
 
+// Registrar dominio automáticamente
+if (!isset($licencias[$dominio]) && $token === TOKEN_SECRETO) {
+    $licencias[$dominio] = LICENCIA_UNICA;
+    file_put_contents($licencias_file, json_encode($licencias, JSON_PRETTY_PRINT));
+}
+
+// Devolver licencia
 if (isset($licencias[$dominio]) && $token === TOKEN_SECRETO) {
     echo $licencias[$dominio];
 } else {
     http_response_code(403);
-    echo 'Acceso no autorizado';
+    echo 'Token inválido';
 }
 ?>
